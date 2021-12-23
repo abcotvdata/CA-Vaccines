@@ -12,6 +12,16 @@
 
 */
 
+@font-face {
+  font-family: GothamBold;
+  src: url(gothambold/Gotham-Bold.ttf);
+}
+
+@font-face {
+  font-family: GothamBook;
+  src: url(gothambook/Gotham-Book.otf);
+}
+
 
 
 /*DROPDOWN STYLING*/
@@ -22,7 +32,7 @@
         font-size: 16px;
         border: none;
         cursor: pointer;
-        font-family: 'Montserrat', sans-serif;;
+        font-family: 'GothamBook', sans-serif;;
         margin-bottom: 10px;
       }
 
@@ -69,7 +79,7 @@
       .countydrop {
          height: 30vh;
          overflow: scroll;
-         font-family: 'Montserrat', sans-serif;;
+         font-family: 'GothamBook', sans-serif;;
       }
 
       .dropdown p:hover {background-color: #ddd;}
@@ -80,18 +90,10 @@
 
 
 
-@font-face {
-  font-family: GothamBold;
-  src: url(gothambold/Gotham-Bold.ttf);
-}
 
-@font-face {
-  font-family: GothamBook;
-  src: url(gothambook/Gotham-Book.otf);
-}
 
 html {
-   font-family: GothamBook;
+   font-family: GothamBook, sans-serif;
 
 }
 
@@ -115,7 +117,7 @@ h3 {
 }*/
 
 .title, .subtitle, .graph-title {
-   font-family: GothamBold;
+   font-family: GothamBold, sans-serif;
    color: white;
    padding: 10px 5px;
    margin: 0px;
@@ -134,7 +136,7 @@ h3 {
 }
 
 .legend {
-  font-family: GothamBold;
+  font-family: GothamBold, sans-serif;
 }
 
 .iframe {
@@ -192,7 +194,7 @@ h3 {
 }  
 
 .panel-number {
-   font-family: GothamBold;
+   font-family: GothamBold, sans-serif;
    font-size: 50px;
 }
 
@@ -201,7 +203,7 @@ h3 {
 }
 
 .level4 h4 {
-   font-family: Gotham-Book;
+   font-family: GothamBook, sans-serif;
    padding: 0px;
    margin: 0px;
    font-style: italic;
