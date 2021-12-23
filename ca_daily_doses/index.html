@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Project: </title>
+
+	<!-- viewport for responsive -->	
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+	<!-- CSS stylesheets -->	
+	<link href="css/normalize.css" rel="stylesheet" type="text/css">
+	<link href="css/jqueryui.css" rel="stylesheet" type="text/css">
+	<link href="css/styles.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+
+  	<div class="title">
+  		<h1>VACCINES ADMINISTERED BY DAY</h1>
+  	</div>
+  	<div class="subtitle">
+  		<h3>USE THE DROPDOWN TO CHOOSE A COUNTY</h3>
+  	</div>
+
+  	<div class="legend">
+		<h3><span class="daily">DAILY DOSES</span>, <span class="average">7-DAY AVERAGE</span></h3> 
+	</div>
+
+    <div class="dropdown">
+		<button onclick="myFunction()" class="dropbtn">Choose a county: &#9660</button>
+		<div id="myDropdown" class="dropdown-content">
+		    <input type="text" placeholder="Search.." id="myInput" onkeyup="filterFunction()">
+		    <div class="countydrop">
+
+			</div>
+		</div>
+	</div>
+
+	<div class="graph-title">
+		<h3>All CA Counties</h3>
+	</div>
+
+	<div class="iframe">
+		<iframe src="plots/vax_with_ave_All_CA_Counties.html"></iframe>
+	</div>
+
+	<div class="level4">
+		<h4>Source: California Department of Public Health</h4>
+		<h4>Totals for the state's Vaccine Progress Dashboard and this dataset may not match, as the dashboard is by report date and this data is by administration date. Dose numbers may also change as data is updated.</h4>
+	</div>
+
+
+
+
+
+
+
+<!-- JAVASCRIPT -->
+	<script src="js/jquery.js"></script>
+	<script src="js/jqueryui.js"></script>
+	<script src="js/script.js"></script>
+  </body>
+</html>
+
+
+<!-- photos courtesy of Sarah Soutoul (copyright) -->
+<!-- soar.mp4 courtesy of Keith Plocek (copyright) -->
