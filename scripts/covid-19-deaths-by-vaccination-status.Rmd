@@ -1,0 +1,213 @@
+---
+title: "COVID-19 DEATHS BY VACCINATION STATUS"
+subtitle: "7-DAY AVERAGE DEATHS PER 100K PEOPLE"
+output: 
+  html_document:
+    css: graph-with-side-panel.css
+    theme: null
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#this makes it so you can put a class around a snippet
+knitr::knit_hooks$set(class = function(before, options, envir) {
+  if(before){
+    sprintf("<div class = '%s'>", options$class)
+  }else{
+    "</div>"
+  }
+})
+```
+
+<div class="legend">
+
+<h3><span class="unvaxed">UNVACCINATED</span> VS <span class="vaxed">VACCINATED</span></h3> 
+
+</div>
+
+```{r echo=FALSE, include=FALSE}
+library(ggplot2)
+library(plotly)
+library(htmlwidgets)
+library(bsselectR)
+library(tidyverse)
+library(zoo)
+library(ggtext)
+library(janitor)
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+#code for the graph
+
+ca_post_vax_json <- jsonlite::fromJSON("https://data.covid19.ca.gov/data/dashboard/postvax/california.json", flatten = TRUE)
+#ca_post_vax_json <- fromJSON(file = "https://data.covid19.ca.gov/data/dashboard/postvax/california.json")
+ca_post_vax <- ca_post_vax_json[['data']] 
+ca_post_vax <- ca_post_vax %>% 
+  janitor::clean_names()
+
+#ca_post_vax <- read.csv('https://data.chhs.ca.gov/dataset/e39edc8e-9db1-40a7-9e87-89169401c3f5/resource/c5978614-6a23-450b-b637-171252052214/download/covid19postvaxstatewidestats.csv') %>% 
+#  janitor::clean_names()
+
+ca_post_vax$date <- as.Date(as.character(ca_post_vax$date), "%Y-%m-%d")
+ca_post_vax$pretty_date <- gsub(" 0"," ", format(as.character(ca_post_vax$date, format="%b. %d, %Y")))
+ca_post_vax$report_date <- as.Date(as.character(ca_post_vax$report_date), "%Y-%m-%d")
+ca_post_vax$pretty_reported_date <- gsub(" 0"," ", format(as.character(ca_post_vax$report_date, format="%b. %d, %Y")))
+ca_post_vax <- ca_post_vax %>% arrange(date)
+
+most_recent = max(ca_post_vax$date)
+
+ca_post_vax_most_recent <- ca_post_vax %>% filter(date == (most_recent))
+ca_post_vax_most_recent_cases <- ca_post_vax %>% filter(date == (most_recent-7))
+ca_post_vax_most_recent_hosp <- ca_post_vax %>% filter(date == (most_recent-14))
+ca_post_vax_most_recent_deaths <- ca_post_vax %>% filter(date == (most_recent-21))
+
+pretty_max_date_last_reported <- ca_post_vax_most_recent$pretty_reported_date
+
+pretty_max_date_cases <- ca_post_vax_most_recent_cases$pretty_date
+pretty_max_date_hosp <- ca_post_vax_most_recent_hosp$pretty_date
+pretty_max_date_deaths <- ca_post_vax_most_recent_deaths$pretty_date
+
+most_recent_boost_cases <- ca_post_vax_most_recent_cases$boost_case_rate
+most_recent_vax_cases <- ca_post_vax_most_recent_cases$vax_case_rate
+most_recent_UNvax_case <- ca_post_vax_most_recent_cases$unvax_case_rate
+
+most_recent_boost_hosp <- ca_post_vax_most_recent_hosp$boost_hosp_rate
+most_recent_vax_hosp <- ca_post_vax_most_recent_hosp$vax_hosp_rate
+most_recent_UNvax_hosp <- ca_post_vax_most_recent_hosp$unvax_hosp_rate
+
+most_recent_boost_death <- ca_post_vax_most_recent_deaths$boost_death_dod_rate
+most_recent_vax_death <- ca_post_vax_most_recent_deaths$vax_death_dod_rate
+most_recent_UNvax_death <- ca_post_vax_most_recent_deaths$unvax_death_dod_rate
+
+
+more_likely_cases <- round((most_recent_UNvax_case/most_recent_vax_cases), digits = 1)
+more_likely_hosp <- round((most_recent_UNvax_hosp/most_recent_vax_hosp), digits = 1)
+more_likely_death <- round((most_recent_UNvax_death/most_recent_vax_death), digits = 1)
+
+#increase_or_decrease <- NULL
+
+#if (two_week_change_LA > 0) {
+#  increase_or_decrease <- "INCREASE"
+#} else if (two_week_change_LA < 0) {
+#  increase_or_decrease <- "DECREASE"
+#} else {
+#  increase_or_decrease <- "NO CHANGE"
+#}
+colors <- c("Vaccinated" = "navy", "Unvaccinated" = "goldenrod", "Boosted" = "dodgerblue")
+
+deaths_filter <- ca_post_vax %>% 
+  filter(date <= (most_recent-21))
+
+ca_plot <- ggplot() +
+  geom_path(data=deaths_filter,
+            lineend = "butt",
+            linejoin = "round",
+            aes(x=date,
+                y=vax_death_dod_rate,
+                group=1,
+                text = paste(sep = "","For week ending: ", pretty_date ,"<br> 7-day average cases per 100K vaccinated people: ", round(vax_death_dod_rate, digits=1)),
+                color="Vaccinated",
+                ), 
+            size = 1.2) +
+  geom_path(data=deaths_filter,
+            lineend = "butt",
+            linejoin = "round",
+            aes(x=date, 
+                y=unvax_death_dod_rate,
+                group=1,
+                text = paste(sep = "", "For week ending: ", pretty_date ,"<br> 7-day average cases per 100K unvaccinated people: ", round(unvax_death_dod_rate, digits=1)),
+                color="Unvaccinated",
+                ),
+            size = 1.2) +
+  geom_path(data=deaths_filter,
+            lineend = "butt",
+            linejoin = "round",
+            aes(x=date, 
+                y=boost_death_dod_rate,
+                group=1,
+                text = paste(sep = "", "For week ending: ", pretty_date ,"<br> 7-day average deaths per 100K boosted people: ", round(unvax_case_rate, digits=1)),
+                color="Boosted",
+                ),
+            size = 1.2) +
+  #labs(color = "Legend") +
+  scale_color_manual(values = colors) +
+  scale_y_continuous(labels = scales::comma) +
+  theme(panel.background = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(color = 'grey'),
+        plot.margin = margin(0, 0, 0, 0, "cm"),
+        axis.text.y = element_text(vjust = -0.5,
+                                   hjust = 0,
+                                   margin = margin(
+                                     l = 2, 
+                                     r = -35)
+                                   ),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.ticks.length = unit(0, "pt"),
+        legend.position = "none",
+        legend.title = element_blank() #,
+        #legend.position = "top",
+        #legend.direction = "horizontal",
+        #legend.spacing.x = unit(1.0, 'cm')
+        ) 
+
+
+```
+
+
+<div class="panel">
+
+<div class="panel-1">
+
+<div class="panel-title">
+
+### UNVACCINATED PEOPLE
+
+</div>
+
+<div class="panel-number">
+
+### `r abs(more_likely_death)`x
+
+</div>
+
+<div class="panel-desc">
+
+### MORE LIKELY TO DIE FROM COVID-19
+
+</div>
+
+</div>
+
+</div>
+
+```{r, echo=FALSE, warning=FALSE, class="plot", out.width = "100%"}
+
+font <- list(
+  family = "GothamBook",
+  size = 15,
+  color = "white"
+)
+
+label <- list(
+  bgcolor = "dodgerblue",
+  bordercolor = "transparent",
+  font = font
+)
+
+ggplotly(ca_plot, tooltip = "text", height=400) %>% 
+  config(displayModeBar = F) %>% 
+  layout(font=font #, 
+         #legend = list(orientation="v", x=0.1, y=1)
+         ) %>% 
+  style(hoverlabel = label)
+
+```
+
+#### Note: Only includes people over 16 years old. Date last reported: `r pretty_max_date_last_reported`. Case rates have a 7-day lag from the date last reported. Hospitalizations have a 14-day lag and deaths have a 21-day lag. 
+#### Source: California Department of Public Health
