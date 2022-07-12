@@ -1,0 +1,23 @@
+on:
+    schedule:
+     - cron: '25 21,22 * * *'
+    workflow_dispatch:
+
+name: CA county vaccine map
+  
+jobs:
+  render:
+    name: Pull CA open data into a map
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: r-lib/actions/setup-r@v1
+      - name: Install dependencies and packages
+        run: Rscript -e 'install.packages(c("tidyverse","eia", "leaflet", "leaflet.providers", "leaflet.extras", "rgdal, dependencies = TRUE", "htmlwidgets"))'
+      - name: Get CA county vaccine data
+        run: Rscript scripts/county-scraper-map.R
+      - name: Commit results
+        run: |
+          git add -A
+          git commit -m 'Update CA Vaccine Map' || echo "No changes"
+          git push origin || echo "No changes to commit"
